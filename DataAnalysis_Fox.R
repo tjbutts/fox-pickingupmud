@@ -187,8 +187,39 @@ axis(side=2,
      labels = c('1', '', '','','','','','','','10','','','','','','','','','100', '', '', '','','','','','','1000'), las=2, cex.axis=1)
 abline(v = 12, lty = 2, lwd=2, col='gray60') # Denotes shift in Dredging status
 
+# Model Zoop Biomass Response and determine where error lies + variable covariation ============================= 
+# Period is the same across all four years and thus it is a crossed variable not nested, 
+## requires the notation (1|year) + (1|period) 
+# Rep is nested within site and is unique to that site per year per period 
+## requires notation 
+library(lme4)
+# rep isn't being factored here, period (referencing sampling period) is nested within year 
+# need to make site, year, and treatment factors 
+fox_zp = fox_zp %>%
+  mutate(site = as.factor(site), 
+         period = as.factor(period), 
+         year = as.factor(year), 
+         treatment = as.factor(treatment), 
+         rep =as.factor(rep)) %>%
+  as_tibble()
+fox_zp
 
-
-
-
+m2 <- lmer(log(ug_total+1)~treatment + year + (1|year/period), data=fox_zp) # Most recent model
+summary(m2)
+plot(m2)
+library(car)
+Anova(m2) # Treatment and site are significant
+fixef(m2)
+confint(m2)
+ranef(m2)
+boxplot(log(fox_zp$ug_total+1)~fox_zp$treatment+fox_zp$year, ylab="Total zoop biomass", xlab = 'Dredging Status', yaxt ='n')
+axis(side=2,
+     at=c(log(1),
+          log(2),log(3),log(4),log(5),log(6),log(7),log(8),log(9),log(10),
+          log(20),log(30),log(40),log(50),log(60),log(70),log(80),log(90),log(100),
+          log(200), log(300), log(400), log(500), log(600), log(700), log(800), log(900), log(1000)), #Where the tick marks should be drawn
+     labels = c('1', '', '','','','','','','','10','','','','','','','','','100', '', '', '','','','','','','1000'), las=2, cex.axis=1)
+library(multcomp)
+summary(glht(m2, linfct=mcp(treatment="Tukey")))
+summary(glht(m2, linfct=mcp(site = 'Tukey')))
 

@@ -1,13 +1,10 @@
 # Fox River Data Visualization #
-rm(list=ls())
 
 library(tidyverse)
 library(magrittr)
 library(lubridate)
 library(forcats)
 
-# Set wd 
-setwd("C:/Users/Owner/Box/Butts_Scripts/Fox River Project/fox-pickingupmud")
 fox <- read.csv('foxriverdat_clean.csv')
 as_tibble(fox) 
 
